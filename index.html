@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Playground — Aprende C desde cero</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1612;
+  --ink2: #4a433c;
+  --ink3: #8a7f76;
+  --paper: #faf8f4;
+  --paper2: #f2ede4;
+  --paper3: #e8e0d2;
+  --line: #d8d0c4;
+  --c1: #e85d26;   /* orange — variables */
+  --c2: #2b6cb0;   /* blue — constants */
+  --c3: #276749;   /* green — conditionals */
+  --c4: #7b3fa0;   /* purple — loops */
+  --c1l: #fde8dc;
+  --c2l: #dbeafe;
+  --c3l: #d4edda;
+  --c4l: #ede9fe;
+  --radius: 12px;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Fraunces', Georgia, serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--serif);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SIDEBAR NAV ── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 40px 28px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--ink3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.sidebar-logo span { color: var(--c1); }
+
+.sidebar-title {
+  font-size: 32px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.05;
+  margin-bottom: 40px;
+  letter-spacing: -1px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  border: none;
+  background: transparent;
+  color: #9a9088;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  letter-spacing: 0.5px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.nav-item.active { color: #fff; font-weight: 500; }
+.nav-item.active[data-section="variables"]    { background: rgba(232,93,38,0.2); }
+.nav-item.active[data-section="constantes"]   { background: rgba(43,108,176,0.2); }
+.nav-item.active[data-section="condicionales"]{ background: rgba(39,103,73,0.2); }
+.nav-item.active[data-section="ciclos"]       { background: rgba(123,63,160,0.2); }
+
+.nav-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 500; flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+}
+.nav-item.active .nav-num { background: currentColor; color: var(--ink); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #4a443c;
+  line-height: 1.8;
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  flex: 1;
+  padding: 56px 56px 80px;
+  max-width: 820px;
+}
+
+/* SECTION */
+.section { display: none; }
+.section.active { display: block; animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* CHAPTER HEADER */
+.chapter-header { margin-bottom: 48px; }
+.chapter-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.eyebrow-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chapter-h1 {
+  font-size: clamp(44px, 6vw, 68px);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: 16px;
+}
+.chapter-desc {
+  font-size: 17px;
+  color: var(--ink2);
+  line-height: 1.7;
+  max-width: 540px;
+  font-weight: 300;
+}
+
+/* CARDS */
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+.card-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.card p {
+  font-size: 15px;
+  color: var(--ink2);
+  line-height: 1.75;
+  font-family: var(--serif);
+  font-weight: 300;
+}
+.card p + p { margin-top: 10px; }
+.card p strong { color: var(--ink); font-weight: 700; }
+
+/* CODE */
+.code {
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 24px 28px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 2;
+  overflow-x: auto;
+  margin: 16px 0;
+  color: #c8c0b4;
+}
+.code .ln { color: #3a3530; user-select: none; margin-right: 20px; font-size: 11px; }
+.kw  { color: #e8956a; }
+.ty  { color: #7ec8e3; }
+.val { color: #a8d8a0; }
+.str { color: #f0c060; }
+.cmt { color: #4a4440; font-style: italic; }
+.fn  { color: #c8a8e8; }
+.op  { color: #e8e0d2; }
+.hl  { background: rgba(255,255,255,0.05); border-radius: 3px; padding: 0 4px; }
+
+/* INTERACTIVE DEMO */
+.demo {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.demo-bar {
+  background: var(--paper3);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.demo-dots { display: flex; gap: 6px; }
+.demo-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.demo-dots span:nth-child(1) { background: #ff5f57; }
+.demo-dots span:nth-child(2) { background: #febc2e; }
+.demo-dots span:nth-child(3) { background: #28c840; }
+.demo-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+}
+.demo-body { padding: 28px; }
+
+/* FORM ELEMENTS */
+.field { margin-bottom: 20px; }
+.field-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.field-label b { color: var(--ink); font-weight: 500; }
+
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  cursor: pointer;
+  border: 3px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+input[type=text], select, input[type=number] {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+input[type=text]:focus, select:focus { border-color: var(--ink); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #2c2520; transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--ink2); border: 1px solid var(--line); }
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* OUTPUT */
+.output-box {
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.9;
+  margin-top: 16px;
+  min-height: 56px;
+  color: #a8d8a0;
+  white-space: pre-wrap;
+}
+.output-box .out-label { color: #4a4440; font-size: 11px; }
+.output-box .out-err { color: #e87070; }
+.output-box .out-ok  { color: #a8d8a0; }
+.output-box .out-dim { color: #4a4440; }
+
+/* MEMORY CELLS */
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.mem-cell {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  transition: all 0.3s;
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.mem-cell.var-cell  { border-top: 3px solid var(--c1); }
+.mem-cell.const-cell{ border-top: 3px solid var(--c2); }
+.mc-name  { font-family: var(--mono); font-size: 10px; color: var(--ink3); margin-bottom: 4px; }
+.mc-val   { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.mc-type  { font-family: var(--mono); font-size: 10px; color: var(--ink3); }
+.mc-addr  { font-family: var(--mono); font-size: 9px; color: var(--line); margin-top: 4px; }
+
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+@media(max-width:640px) { .g2,.g3 { grid-template-columns: 1fr; } }
+
+/* TYPE CARDS */
+.type-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+}
+.type-name {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.type-desc {
+  font-size: 12px;
+  color: var(--ink3);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-family: var(--mono);
+}
+.type-bytes {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--paper2);
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+
+/* LOOP VISUALIZER */
+.loop-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.loop-cell {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink3);
+  background: #fff;
+  transition: all 0.2s;
+}
+.loop-cell.done    { background: var(--c4l); border-color: var(--c4); color: var(--c4); }
+.loop-cell.current { background: var(--c4); border-color: var(--c4); color: #fff; transform: scale(1.15); font-weight: 500; }
+
+/* QUIZ */
+.quiz-card { background: var(--paper2); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; margin-top: 24px; }
+.quiz-q { font-size: 16px; font-weight: 700; font-style: italic; margin-bottom: 16px; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink2);
+  transition: all 0.15s;
+}
+.quiz-opt:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+.quiz-opt.correct { background: var(--c3l); border-color: var(--c3); color: var(--c3); font-weight: 500; }
+.quiz-opt.wrong   { background: #fde8dc; border-color: var(--c1); color: var(--c1); }
+.quiz-fb { font-family: var(--mono); font-size: 12px; margin-top: 12px; min-height: 18px; }
+
+/* PROGRESS */
+.progress-bar {
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  width: 25%;
+}
+
+/* SECTION ACCENT COLORS */
+.accent-var  { color: var(--c1); }
+.accent-const{ color: var(--c2); }
+.accent-cond { color: var(--c3); }
+.accent-loop { color: var(--c4); }
+.bg-var  { background: var(--c1l); }
+.bg-const{ background: var(--c2l); }
+.bg-cond { background: var(--c3l); }
+.bg-loop { background: var(--c4l); }
+.border-var  { border-left: 4px solid var(--c1); }
+.border-const{ border-left: 4px solid var(--c2); }
+.border-cond { border-left: 4px solid var(--c3); }
+.border-loop { border-left: 4px solid var(--c4); }
+
+/* COND TREE */
+.cond-tree { margin-top: 12px; }
+.cond-branch {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  margin-bottom: 6px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+.cond-branch.active-branch { background: var(--c3l); border-color: var(--c3); color: var(--c3); font-weight: 500; }
+.cond-branch.skip-branch   { background: var(--paper2); color: var(--ink3); }
+
+/* CALLOUT */
+.callout {
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  border: 1px solid transparent;
+}
+.callout-tip  { background: var(--c2l); border-color: #93c5fd; color: #1e40af; }
+.callout-warn { background: var(--c1l); border-color: #fca5a5; color: #9b2226; }
+
+/* RESPONSIVE SIDEBAR */
+@media(max-width: 768px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 20px; gap: 8px; }
+  .sidebar-logo, .sidebar-title, .sidebar-footer { display: none; }
+  .nav-item { width: auto; flex: 1; justify-content: center; min-width: 80px; }
+  .main { padding: 32px 20px 60px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">Lenguaje <span>C</span></div>
+    <div class="sidebar-title">Aprende<br>a pro&shy;gra&shy;mar</div>
+
+    <button class="nav-item active" data-section="variables" onclick="switchSection('variables',this)">
+      <span class="nav-num">1</span> Variables
+    </button>
+    <button class="nav-item" data-section="constantes" onclick="switchSection('constantes',this)">
+      <span class="nav-num">2</span> Constantes
+    </button>
+    <button class="nav-item" data-section="condicionales" onclick="switchSection('condicionales',this)">
+      <span class="nav-num">3</span> Condicionales
+    </button>
+    <button class="nav-item" data-section="ciclos" onclick="switchSection('ciclos',this)">
+      <span class="nav-num">4</span> Ciclos
+    </button>
+
+    <div class="sidebar-footer">
+      Guía interactiva<br>
+      Fundamentos de C<br>
+      v1.0
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <!-- ══ VARIABLES ══ -->
+    <section class="section active" id="sec-variables">
+      <div class="chapter-header">
+        <div class="chapter-eyebrow accent-var">
+          <div class="eyebrow-dot" style="background:var(--c1)"></div>
+          Capítulo 01
+        </div>
+        <h1 class="chapter-h1">Variables</h1>
+        <p class="chapter-desc">Una variable es una caja con nombre donde el programa guarda un dato. Puedes cambiar su contenido en cualquier momento.</p>
+      </div>
+
+      <div class="card border-var">
+        <div class="card-label accent-var">Concepto fundamental</div>
+        <h3>¿Qué es una variable?</h3>
+        <p>Imagina que tienes cajas físicas con etiquetas. <strong>int edad</strong> sería una caja etiquetada "edad" que solo puede guardar números enteros. Cuando escribes <strong>edad = 20</strong>, estás metiendo el número 20 dentro de esa caja.</p>
+        <p>En C debes decirle al compilador <em>qué tipo de dato</em> vas a guardar antes de usarla. Esto se llama <strong>declaración</strong>.</p>
+        <div class="code">
+<span class="cmt">// tipo  &nbsp; nombre  = valor inicial;</span>
+<span class="ty">int</span>    &nbsp; edad    <span class="op">=</span> <span class="val">20</span><span class="op">;</span>      <span class="cmt">// número entero</span>
+<span class="ty">float</span>  &nbsp; precio  <span class="op">=</span> <span class="val">19.99</span><span class="op">;</span>   <span class="cmt">// número decimal</span>
+<span class="ty">char</span>   &nbsp; letra   <span class="op">=</span> <span class="str">'A'</span><span class="op">;</span>     <span class="cmt">// un solo carácter</span>
+<span class="ty">double</span> &nbsp; masa    <span class="op">=</span> <span class="val">9.109e-31</span><span class="op">;</span> <span class="cmt">// decimal de alta precisión</span></div>
+      </div>
+
+      <!-- TIPOS -->
+      <div class="card">
+        <div class="card-label accent-var">Tipos de dato principales</div>
+        <div class="g2" style="margin-top:4px">
+          <div class="type-card">
+            <div class="type-name accent-var">int</div>
+            <span class="type-bytes">4 bytes · −2,147,483,648 a 2,147,483,647</span>
+            <div class="type-desc">Números enteros sin decimales.<br>Uso: edades, contadores, puntajes.</div>
+            <div class="code" style="padding:12px 16px;font-size:12px;margin:0"><span class="ty">int</span> puntos <span class="op">=</span> <span class="val">100</span><span class="op">;</span></div>
+          </div>
+          <div class="type-card">
+            <div class="type-name accent-var">float</div>
+            <span class="type-bytes">4 bytes · ~6 decimales</span>
+            <div class="type-desc">Números con parte decimal.<br>Uso: precios, temperaturas, notas.</div>
+            <div class="code" style="padding:12px 16px;font-size:12px;margin:0"><span class="ty">float</span> temp <span class="op">=</span> <span class="val">36.6</span><span class="op">;</span></div>
+          </div>
+          <div class="type-card">
+            <div class="type-name accent-var">char</div>
+            <span class="type-bytes">1 byte · 0 a 127 (ASCII)</span>
+            <div class="type-desc">Un solo carácter entre comillas simples.<br>Uso: letras, símbolos.</div>
+            <div class="code" style="padding:12px 16px;font-size:12px;margin:0"><span class="ty">char</span> opcion <span class="op">=</span> <span class="str">'s'</span><span class="op">;</span></div>
+          </div>
+          <div class="type-card">
+            <div class="type-name accent-var">double</div>
+            <span class="type-bytes">8 bytes · ~15 decimales</span>
+            <div class="type-desc">Decimal de doble precisión.<br>Uso: cálculos científicos, financieros.</div>
+            <div class="code" style="padding:12px 16px;font-size:12px;margin:0"><span class="ty">double</span> pi <span class="op">=</span> <span class="val">3.14159265358</span><span class="op">;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMO: SIMULADOR MEMORIA -->
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <div class="demo-label">Simulador de memoria — agrega variables y observa cómo se guardan</div>
+        </div>
+        <div class="demo-body">
+          <div class="g2">
+            <div class="field">
+              <div class="field-label">Nombre</div>
+              <input type="text" id="vName" value="edad" maxlength="12" placeholder="nombre">
+            </div>
+            <div class="field">
+              <div class="field-label">Tipo</div>
+              <select id="vType">
+                <option value="int">int</option>
+                <option value="float">float</option>
+                <option value="char">char</option>
+                <option value="double">double</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Valor <b id="vValLbl">20</b></div>
+            <input type="range" id="vVal" min="-50" max="150" value="20"
+              oninput="document.getElementById('vValLbl').textContent=this.value">
+          </div>
+          <button class="btn btn-primary" onclick="addVariable()">+ Agregar variable</button>
+          <button class="btn btn-ghost" onclick="clearVariables()">Limpiar</button>
+          <div class="mem-grid" id="memGrid">
+            <div class="mem-cell var-cell">
+              <div class="mc-name">edad</div>
+              <div class="mc-val">20</div>
+              <div class="mc-type">int</div>
+              <div class="mc-addr">0x7ffc1</div>
+            </div>
+          </div>
+          <div class="output-box" id="varOut"><span class="out-dim">// Código generado</span>
+<span class="out-ok">int edad = 20;  // en 0x7ffc1</span></div>
+        </div>
+      </div>
+
+      <!-- QUIZ -->
+      <div class="quiz-card">
+        <div class="quiz-q">¿Qué tipo de dato usarías para guardar la temperatura 36.6°C?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quiz('qv',this,false)">A)  int temperatura = 36.6;</button>
+          <button class="quiz-opt" onclick="quiz('qv',this,true)">B)  float temperatura = 36.6;</button>
+          <button class="quiz-opt" onclick="quiz('qv',this,false)">C)  char temperatura = 36.6;</button>
+        </div>
+        <div class="quiz-fb" id="qvfb"></div>
+      </div>
+    </section>
+
+    <!-- ══ CONSTANTES ══ -->
+    <section class="section" id="sec-constantes">
+      <div class="chapter-header">
+        <div class="chapter-eyebrow accent-const">
+          <div class="eyebrow-dot" style="background:var(--c2)"></div>
+          Capítulo 02
+        </div>
+        <h1 class="chapter-h1">Constantes</h1>
+        <p class="chapter-desc">Una constante es como una variable cuyo valor está bloqueado: se define una vez y nunca cambia. Ideal para valores fijos como Pi o el IVA.</p>
+      </div>
+
+      <div class="card border-const">
+        <div class="card-label accent-const">Concepto fundamental</div>
+        <h3>¿Por qué usar constantes?</h3>
+        <p>Si escribes el número <strong>3.14159</strong> en 50 lugares de tu código y luego necesitas más precisión, tendrías que cambiar los 50. Con una constante <strong>PI</strong> solo cambias un lugar.</p>
+        <p>Además, el compilador te protege: si intentas modificar una constante por error, te avisa.</p>
+        <div class="code">
+<span class="cmt">// Forma 1: #define (no ocupa memoria, el compilador lo sustituye)</span>
+<span class="kw">#define</span> PI      <span class="val">3.14159</span>
+<span class="kw">#define</span> IVA     <span class="val">0.16</span>
+<span class="kw">#define</span> MAX     <span class="val">100</span>
+
+<span class="cmt">// Forma 2: const (recomendada, tiene tipo)</span>
+<span class="kw">const</span> <span class="ty">float</span>  pi      <span class="op">=</span> <span class="val">3.14159</span><span class="op">;</span>
+<span class="kw">const</span> <span class="ty">int</span>    dias    <span class="op">=</span> <span class="val">365</span><span class="op">;</span>
+<span class="kw">const</span> <span class="ty">double</span> luz     <span class="op">=</span> <span class="val">299792458.0</span><span class="op">;</span>  <span class="cmt">// m/s</span></div>
+
+        <div class="callout callout-warn" style="margin-top:16px">
+          ⚠️&nbsp; <strong>Error común:</strong> intentar modificar una constante.<br>
+          <code>const int MAX = 100;  MAX = 200;  // ❌ Error de compilación</code>
+        </div>
+      </div>
+
+      <!-- DEMO CALCULADORA -->
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <div class="demo-label">Calculadora con constantes predefinidas</div>
+        </div>
+        <div class="demo-body">
+          <div class="g2">
+            <div class="field">
+              <div class="field-label">Operación</div>
+              <select id="constOp" onchange="calcConst()">
+                <option value="circle">Área de círculo  (usa PI)</option>
+                <option value="iva">Precio con IVA  (usa IVA=0.16)</option>
+                <option value="gravity">Caída libre  (usa G=9.81)</option>
+                <option value="celsius">°C a °F  (usa la fórmula)</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="field-label">Valor de entrada <b id="cvLbl">5</b></div>
+              <input type="range" id="cVal" min="0" max="100" value="5"
+                oninput="document.getElementById('cvLbl').textContent=this.value; calcConst()">
+            </div>
+          </div>
+          <div class="output-box" id="constOut"></div>
+        </div>
+      </div>
+
+      <!-- COMPARACIÓN -->
+      <div class="card">
+        <div class="card-label accent-const">Diferencia clave</div>
+        <div class="g2">
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--c1);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Variable — puede cambiar</p>
+            <div class="code" style="margin:0;font-size:12px">
+<span class="ty">int</span> puntos <span class="op">=</span> <span class="val">0</span><span class="op">;</span>
+puntos <span class="op">=</span> <span class="val">50</span><span class="op">;</span>   <span class="cmt">// ✅ OK</span>
+puntos <span class="op">+=</span> <span class="val">10</span><span class="op">;</span>  <span class="cmt">// ✅ OK</span></div>
+          </div>
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--c2);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Constante — bloqueada</p>
+            <div class="code" style="margin:0;font-size:12px">
+<span class="kw">const</span> <span class="ty">int</span> MAX <span class="op">=</span> <span class="val">100</span><span class="op">;</span>
+MAX <span class="op">=</span> <span class="val">200</span><span class="op">;</span>   <span class="cmt">// ❌ ERROR</span>
+MAX <span class="op">+=</span> <span class="val">10</span><span class="op">;</span>   <span class="cmt">// ❌ ERROR</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">¿Cuál es la forma correcta de declarar una constante en C?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quiz('qc',this,false)">A)  constant int MAX = 100;</button>
+          <button class="quiz-opt" onclick="quiz('qc',this,true)">B)  const int MAX = 100;</button>
+          <button class="quiz-opt" onclick="quiz('qc',this,false)">C)  readonly int MAX = 100;</button>
+        </div>
+        <div class="quiz-fb" id="qcfb"></div>
+      </div>
+    </section>
+
+    <!-- ══ CONDICIONALES ══ -->
+    <section class="section" id="sec-condicionales">
+      <div class="chapter-header">
+        <div class="chapter-eyebrow accent-cond">
+          <div class="eyebrow-dot" style="background:var(--c3)"></div>
+          Capítulo 03
+        </div>
+        <h1 class="chapter-h1">Condicio&shy;nales</h1>
+        <p class="chapter-desc">Los condicionales le enseñan al programa a tomar decisiones: "si esto es verdad, haz X; si no, haz Y".</p>
+      </div>
+
+      <div class="card border-cond">
+        <div class="card-label accent-cond">Estructura if / else if / else</div>
+        <p>C evalúa la condición dentro del paréntesis. Si es <strong>verdadera (≠ 0)</strong>, ejecuta ese bloque y salta los demás. Si es <strong>falsa (= 0)</strong>, pasa al siguiente.</p>
+        <div class="code">
+<span class="kw">if</span> (nota <span class="op">&gt;=</span> <span class="val">90</span>) {
+  <span class="fn">printf</span>(<span class="str">"Excelente\n"</span>);
+
+} <span class="kw">else if</span> (nota <span class="op">&gt;=</span> <span class="val">70</span>) {
+  <span class="fn">printf</span>(<span class="str">"Aprobado\n"</span>);
+
+} <span class="kw">else</span> {
+  <span class="fn">printf</span>(<span class="str">"Reprobado\n"</span>);
+}</div>
+      </div>
+
+      <!-- DEMO INTERACTIVO -->
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <div class="demo-label">Simulador de if/else — mueve el slider y observa qué rama se ejecuta</div>
+        </div>
+        <div class="demo-body">
+          <div class="field">
+            <div class="field-label">Escenario</div>
+            <select id="condScene" onchange="runCond()">
+              <option value="nota">Calificación escolar</option>
+              <option value="edad">Verificar mayoría de edad</option>
+              <option value="temp">Temperatura del día</option>
+              <option value="saldo">Verificar saldo bancario</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Valor actual <b id="condVLbl">75</b></div>
+            <input type="range" id="condV" min="-20" max="150" value="75"
+              oninput="document.getElementById('condVLbl').textContent=this.value; runCond()">
+          </div>
+          <div class="code" id="condCode" style="font-size:12px;line-height:1.8"></div>
+          <div class="cond-tree" id="condTree"></div>
+          <div class="output-box" id="condOut"></div>
+        </div>
+      </div>
+
+      <!-- OPERADORES -->
+      <div class="card">
+        <div class="card-label accent-cond">Operadores de comparación y lógicos</div>
+        <div class="g2">
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Comparación</p>
+            <div class="code" style="margin:0;font-size:12px;line-height:2.2">
+<span class="val">==</span>  <span class="cmt">igual a</span>
+<span class="val">!=</span>  <span class="cmt">diferente de</span>
+<span class="val">&gt;</span>   <span class="cmt">mayor que</span>
+<span class="val">&lt;</span>   <span class="cmt">menor que</span>
+<span class="val">&gt;=</span>  <span class="cmt">mayor o igual</span>
+<span class="val">&lt;=</span>  <span class="cmt">menor o igual</span></div>
+          </div>
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Lógicos</p>
+            <div class="code" style="margin:0;font-size:12px;line-height:2.2">
+<span class="val">&amp;&amp;</span>  <span class="cmt">AND — ambos verdad</span>
+<span class="val">||</span>  <span class="cmt">OR  — al menos uno</span>
+<span class="val">!</span>   <span class="cmt">NOT — niega</span>
+
+<span class="kw">if</span> (a <span class="val">&gt;</span> <span class="val">0</span> <span class="val">&amp;&amp;</span> b <span class="val">&gt;</span> <span class="val">0</span>) {...}</div>
+          </div>
+        </div>
+        <div class="callout callout-tip" style="margin-top:16px">
+          💡&nbsp; <strong>Ojo:</strong> <code>=</code> asigna un valor. <code>==</code> compara. Confundirlos es el error #1 en C.
+        </div>
+      </div>
+
+      <!-- SWITCH -->
+      <div class="card">
+        <div class="card-label accent-cond">Switch / Case</div>
+        <p>Cuando tienes <strong>muchos casos con valores exactos</strong>, switch es más claro que una cadena de if/else:</p>
+        <div class="code">
+<span class="kw">switch</span> (dia) {
+  <span class="kw">case</span> <span class="val">1</span>:  <span class="fn">printf</span>(<span class="str">"Lunes\n"</span>);          <span class="kw">break</span><span class="op">;</span>
+  <span class="kw">case</span> <span class="val">2</span>:  <span class="fn">printf</span>(<span class="str">"Martes\n"</span>);         <span class="kw">break</span><span class="op">;</span>
+  <span class="kw">case</span> <span class="val">6</span>:
+  <span class="kw">case</span> <span class="val">7</span>:  <span class="fn">printf</span>(<span class="str">"Fin de semana\n"</span>);   <span class="kw">break</span><span class="op">;</span>
+  <span class="kw">default</span>: <span class="fn">printf</span>(<span class="str">"Día laboral\n"</span>);     <span class="kw">break</span><span class="op">;</span>
+}</div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">¿Qué operador comprueba si dos valores son iguales?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quiz('qcond',this,false)">A)  =  (asignación)</button>
+          <button class="quiz-opt" onclick="quiz('qcond',this,true)">B)  ==  (comparación)</button>
+          <button class="quiz-opt" onclick="quiz('qcond',this,false)">C)  ===  (no existe en C)</button>
+        </div>
+        <div class="quiz-fb" id="qcondfb"></div>
+      </div>
+    </section>
+
+    <!-- ══ CICLOS ══ -->
+    <section class="section" id="sec-ciclos">
+      <div class="chapter-header">
+        <div class="chapter-eyebrow accent-loop">
+          <div class="eyebrow-dot" style="background:var(--c4)"></div>
+          Capítulo 04
+        </div>
+        <h1 class="chapter-h1">Ciclos</h1>
+        <p class="chapter-desc">Los ciclos repiten un bloque de código automáticamente. Sin ellos, tendrías que copiar la misma línea cientos de veces.</p>
+      </div>
+
+      <div class="card border-loop">
+        <div class="card-label accent-loop">Los tres tipos de ciclos en C</div>
+        <div class="g3" style="margin-top:8px">
+          <div class="type-card">
+            <div class="type-name accent-loop">for</div>
+            <div class="type-desc">Cuando <strong>sabes exactamente</strong> cuántas veces repetir.</div>
+            <div class="code" style="padding:12px;font-size:11px;margin:0;line-height:1.8">
+<span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="val">0</span>; i<span class="op">&lt;</span><span class="val">5</span>; i<span class="op">++</span>) {
+  <span class="fn">printf</span>(<span class="str">"%d\n"</span>, i);
+}</div>
+          </div>
+          <div class="type-card">
+            <div class="type-name accent-loop">while</div>
+            <div class="type-desc">Mientras <strong>una condición sea verdadera</strong>. Puede ser 0 veces.</div>
+            <div class="code" style="padding:12px;font-size:11px;margin:0;line-height:1.8">
+<span class="kw">while</span> (n <span class="op">&gt;</span> <span class="val">0</span>) {
+  n<span class="op">--</span>;
+}</div>
+          </div>
+          <div class="type-card">
+            <div class="type-name accent-loop">do-while</div>
+            <div class="type-desc">Como while pero se ejecuta <strong>al menos una vez</strong>.</div>
+            <div class="code" style="padding:12px;font-size:11px;margin:0;line-height:1.8">
+<span class="kw">do</span> {
+  <span class="fn">scanf</span>(<span class="str">"%d"</span>, <span class="op">&amp;</span>op);
+} <span class="kw">while</span> (op <span class="op">!=</span> <span class="val">0</span>);</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMO FOR -->
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <div class="demo-label">Visualizador de ciclo FOR — configura y ejecuta paso a paso</div>
+        </div>
+        <div class="demo-body">
+          <div class="g3">
+            <div class="field">
+              <div class="field-label">Inicio (i=?) <b id="lsLbl">0</b></div>
+              <input type="range" id="loopS" min="0" max="10" value="0"
+                oninput="document.getElementById('lsLbl').textContent=this.value; setupLoop()">
+            </div>
+            <div class="field">
+              <div class="field-label">Límite (i&lt;?) <b id="leLbl">8</b></div>
+              <input type="range" id="loopE" min="1" max="20" value="8"
+                oninput="document.getElementById('leLbl').textContent=this.value; setupLoop()">
+            </div>
+            <div class="field">
+              <div class="field-label">Paso (i+=?) <b id="lpLbl">1</b></div>
+              <input type="range" id="loopP" min="1" max="5" value="1"
+                oninput="document.getElementById('lpLbl').textContent=this.value; setupLoop()">
+            </div>
+          </div>
+          <div class="code" id="loopCode" style="font-size:12px"></div>
+          <div class="loop-grid" id="loopGrid"></div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" id="loopBtn" onclick="playLoop()">▶ Ejecutar ciclo</button>
+            <button class="btn btn-ghost" onclick="resetLoop()">↺ Reiniciar</button>
+          </div>
+          <div class="output-box" id="loopOut"><span class="out-dim">// Las iteraciones aparecerán aquí...</span></div>
+        </div>
+      </div>
+
+      <!-- DEMO WHILE -->
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-dots"><span></span><span></span><span></span></div>
+          <div class="demo-label">Simulador WHILE — cuenta regresiva</div>
+        </div>
+        <div class="demo-body">
+          <div class="field">
+            <div class="field-label">Valor inicial de n <b id="wvLbl">5</b></div>
+            <input type="range" id="whileV" min="1" max="12" value="5"
+              oninput="document.getElementById('wvLbl').textContent=this.value; buildWhileCode()">
+          </div>
+          <div class="code" id="whileCode" style="font-size:12px"></div>
+          <button class="btn btn-primary" onclick="runWhile()">▶ Ejecutar WHILE</button>
+          <div class="output-box" id="whileOut"><span class="out-dim">// Presiona ejecutar...</span></div>
+        </div>
+      </div>
+
+      <!-- BREAK / CONTINUE -->
+      <div class="card">
+        <div class="card-label accent-loop">break y continue</div>
+        <div class="g2">
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--c4);margin-bottom:8px;text-transform:uppercase">break — detiene el ciclo</p>
+            <div class="code" style="margin:0;font-size:12px">
+<span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="val">0</span>; i<span class="op">&lt;</span><span class="val">10</span>; i<span class="op">++</span>) {
+  <span class="kw">if</span> (i <span class="op">==</span> <span class="val">5</span>) <span class="kw">break</span><span class="op">;</span>
+  <span class="fn">printf</span>(<span class="str">"%d "</span>, i);
+}
+<span class="cmt">// Imprime: 0 1 2 3 4</span></div>
+          </div>
+          <div>
+            <p style="font-family:var(--mono);font-size:11px;color:var(--c4);margin-bottom:8px;text-transform:uppercase">continue — salta la iteración</p>
+            <div class="code" style="margin:0;font-size:12px">
+<span class="kw">for</span> (<span class="ty">int</span> i<span class="op">=</span><span class="val">0</span>; i<span class="op">&lt;</span><span class="val">6</span>; i<span class="op">++</span>) {
+  <span class="kw">if</span> (i <span class="op">==</span> <span class="val">3</span>) <span class="kw">continue</span><span class="op">;</span>
+  <span class="fn">printf</span>(<span class="str">"%d "</span>, i);
+}
+<span class="cmt">// Imprime: 0 1 2 4 5</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">¿Cuántas veces se ejecuta este ciclo?<br><code style="color:var(--c4);font-size:14px">for (int i = 1; i &lt;= 10; i += 3)</code></div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quiz('ql',this,false)">A)  3 veces</button>
+          <button class="quiz-opt" onclick="quiz('ql',this,true)">B)  4 veces  (i = 1, 4, 7, 10)</button>
+          <button class="quiz-opt" onclick="quiz('ql',this,false)">C)  10 veces</button>
+        </div>
+        <div class="quiz-fb" id="qlfb"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── NAV ──
+const sectionOrder = ['variables','constantes','condicionales','ciclos'];
+function switchSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  const idx = sectionOrder.indexOf(id);
+  document.getElementById('progressFill').style.width = ((idx+1)/4*100)+'%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'constantes') calcConst();
+  if (id === 'condicionales') runCond();
+  if (id === 'ciclos') { setupLoop(); buildWhileCode(); }
+}
+
+// ── VARIABLES: MEMORY SIM ──
+let vars = [{ name:'edad', type:'int', val:'20', addr:'0x7ffc1' }];
+const addrPool = ['0x7ffc1','0x7ffc5','0x7ffc9','0x7ffcd','0x7ffd1','0x7ffd5','0x7ffd9'];
+
+function addVariable() {
+  if (vars.length >= 6) { document.getElementById('varOut').innerHTML = '<span class="out-err">// Máximo 6 variables en este demo</span>'; return; }
+  let name = document.getElementById('vName').value.trim() || 'x';
+  const type = document.getElementById('vType').value;
+  let val = parseInt(document.getElementById('vVal').value);
+  let display = ''+val;
+  if (type === 'char')   { display = String.fromCharCode(65 + Math.abs(val % 26)); }
+  if (type === 'float')  { display = (val * 0.37 + 0.5).toFixed(1); }
+  if (type === 'double') { display = (val * 0.314).toFixed(3); }
+  vars.push({ name, type, val: display, addr: addrPool[vars.length] });
+  renderVars();
+}
+
+function clearVariables() {
+  vars = [{ name:'edad', type:'int', val:'20', addr:'0x7ffc1' }];
+  renderVars();
+}
+
+function renderVars() {
+  document.getElementById('memGrid').innerHTML = vars.map((v,i) =>
+    `<div class="mem-cell var-cell" style="animation-delay:${i*40}ms">
+      <div class="mc-name">${v.name}</div>
+      <div class="mc-val">${v.val}</div>
+      <div class="mc-type">${v.type}</div>
+      <div class="mc-addr">${v.addr}</div>
+    </div>`).join('');
+  document.getElementById('varOut').innerHTML =
+    '<span class="out-dim">// Código generado</span>\n' +
+    vars.map(v => `<span class="out-ok">${v.type} ${v.name} = ${v.type==='char'?`'${v.val}'`:v.val};</span>  <span class="out-dim">// ${v.addr}</span>`).join('\n');
+}
+
+// ── CONSTANTES ──
+function calcConst() {
+  const op = document.getElementById('constOp').value;
+  const v = parseFloat(document.getElementById('cVal').value);
+  const PI=3.14159, IVA=0.16, G=9.81;
+  let out = '';
+  if (op === 'circle') {
+    const a = (PI*v*v).toFixed(4);
+    out = `<span class="out-dim">const float PI = 3.14159;
+float radio = ${v};
+float area = PI * radio * radio;</span>
+
+<span class="out-ok">→  area = ${a} unidades²</span>`;
+  } else if (op === 'iva') {
+    const t = (v*(1+IVA)).toFixed(2);
+    out = `<span class="out-dim">const float IVA = 0.16;
+float precio = $${v};
+float total = precio * (1 + IVA);</span>
+
+<span class="out-ok">→  total = $${t}</span>`;
+  } else if (op === 'gravity') {
+    const t = (v/10).toFixed(1), d = (0.5*G*(t)*(+t)).toFixed(2);
+    out = `<span class="out-dim">const float G = 9.81;
+float tiempo = ${t};   // ${v}/10 segundos
+float dist = 0.5 * G * tiempo * tiempo;</span>
+
+<span class="out-ok">→  dist = ${d} metros</span>`;
+  } else {
+    const f = (v*9/5+32).toFixed(1);
+    out = `<span class="out-dim">const float FACTOR = 9.0/5.0;
+float celsius = ${v};
+float fahrenheit = celsius * FACTOR + 32;</span>
+
+<span class="out-ok">→  fahrenheit = ${f}°F</span>`;
+  }
+  document.getElementById('constOut').innerHTML = out;
+}
+setTimeout(calcConst, 100);
+
+// ── CONDICIONALES ──
+const scenes = {
+  nota: {
+    min:0,max:100,def:75,
+    code: v=>`<span class="ty">int</span> nota <span class="op">=</span> <span class="val">${v}</span><span class="op">;</span>
+
+<span class="kw">if</span> (nota <span class="op">&gt;=</span> <span class="val">90</span>) {
+  <span class="fn">printf</span>(<span class="str">"Excelente ⭐"</span>);
+} <span class="kw">else if</span> (nota <span class="op">&gt;=</span> <span class="val">70</span>) {
+  <span class="fn">printf</span>(<span class="str">"Aprobado ✓"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">printf</span>(<span class="str">"Reprobado ✗"</span>);
+}`,
+    branches: v => [
+      { label:`nota >= 90  →  ${v>=90?'VERDADERO ✓':'falso'}`, active: v>=90 },
+      { label:`nota >= 70  →  ${v>=70&&v<90?'VERDADERO ✓':'falso'}`, active: v>=70&&v<90 },
+      { label:`else (ninguna condición)`, active: v<70 }
+    ],
+    result: v => v>=90?'"Excelente ⭐"':v>=70?'"Aprobado ✓"':'"Reprobado ✗"'
+  },
+  edad: {
+    min:0,max:100,def:18,
+    code: v=>`<span class="ty">int</span> edad <span class="op">=</span> <span class="val">${v}</span><span class="op">;</span>
+
+<span class="kw">if</span> (edad <span class="op">&gt;=</span> <span class="val">18</span>) {
+  <span class="fn">printf</span>(<span class="str">"Mayor de edad ✓"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">printf</span>(<span class="str">"Menor de edad ✗"</span>);
+}`,
+    branches: v=>[
+      { label:`edad >= 18  →  ${v>=18?'VERDADERO ✓':'falso'}`, active:v>=18 },
+      { label:`else`, active:v<18 }
+    ],
+    result: v=>v>=18?'"Mayor de edad ✓"':'"Menor de edad ✗"'
+  },
+  temp: {
+    min:-20,max:50,def:22,
+    code: v=>`<span class="ty">int</span> temp <span class="op">=</span> <span class="val">${v}</span><span class="op">;</span>
+
+<span class="kw">if</span> (temp <span class="op">&gt;</span> <span class="val">30</span>) {
+  <span class="fn">printf</span>(<span class="str">"Calor 🔥"</span>);
+} <span class="kw">else if</span> (temp <span class="op">&gt;=</span> <span class="val">15</span>) {
+  <span class="fn">printf</span>(<span class="str">"Agradable 😊"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">printf</span>(<span class="str">"Frío 🧊"</span>);
+}`,
+    branches: v=>[
+      { label:`temp > 30  →  ${v>30?'VERDADERO ✓':'falso'}`, active:v>30 },
+      { label:`temp >= 15  →  ${v>=15&&v<=30?'VERDADERO ✓':'falso'}`, active:v>=15&&v<=30 },
+      { label:`else`, active:v<15 }
+    ],
+    result: v=>v>30?'"Calor 🔥"':v>=15?'"Agradable 😊"':'"Frío 🧊"'
+  },
+  saldo: {
+    min:-500,max:5000,def:150,
+    code: v=>`<span class="ty">float</span> saldo <span class="op">=</span> <span class="val">${v}</span><span class="op">;</span>
+<span class="ty">float</span> retiro <span class="op">=</span> <span class="val">100</span><span class="op">;</span>
+
+<span class="kw">if</span> (saldo <span class="op">&gt;=</span> retiro) {
+  saldo <span class="op">-=</span> retiro;
+  <span class="fn">printf</span>(<span class="str">"Retiro exitoso ✓"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">printf</span>(<span class="str">"Saldo insuficiente ✗"</span>);
+}`,
+    branches: v=>[
+      { label:`saldo($${v}) >= retiro($100)  →  ${v>=100?'VERDADERO ✓':'falso'}`, active:v>=100 },
+      { label:`else`, active:v<100 }
+    ],
+    result: v=>v>=100?`"Retiro exitoso ✓  (nuevo saldo: $${v-100})"`:'"Saldo insuficiente ✗"'
+  }
+};
+
+function runCond() {
+  const sc = scenes[document.getElementById('condScene').value];
+  const v = parseInt(document.getElementById('condV').value);
+  document.getElementById('condV').min = sc.min;
+  document.getElementById('condV').max = sc.max;
+  document.getElementById('condCode').innerHTML = sc.code(v);
+  document.getElementById('condTree').innerHTML = sc.branches(v).map(b=>
+    `<div class="cond-branch ${b.active?'active-branch':'skip-branch'}">${b.active?'▶ ':' &nbsp;&nbsp;'} ${b.label}</div>`
+  ).join('');
+  document.getElementById('condOut').innerHTML =
+    `<span class="out-dim">// printf imprime:</span>\n<span class="out-ok">→  ${sc.result(v)}</span>`;
+}
+setTimeout(runCond, 150);
+
+// ── CICLOS: FOR ──
+let loopTimer = null;
+
+function setupLoop() {
+  const s=+document.getElementById('loopS').value,
+        e=+document.getElementById('loopE').value,
+        p=+document.getElementById('loopP').value;
+  let items=[];
+  for(let i=s;i<e;i+=p) items.push(i);
+  if(items.length>28) items=items.slice(0,28);
+  document.getElementById('loopGrid').innerHTML = items.map((v,i)=>
+    `<div class="loop-cell" id="lc${i}">${v}</div>`).join('');
+  document.getElementById('loopCode').innerHTML =
+    `<span class="kw">for</span> (<span class="ty">int</span> i <span class="op">=</span> <span class="val">${s}</span>; i <span class="op">&lt;</span> <span class="val">${e}</span>; i <span class="op">+=</span> <span class="val">${p}</span>) {
+  <span class="fn">printf</span>(<span class="str">"%d\\n"</span>, i);   <span class="cmt">// ${items.length} iteración${items.length!==1?'es':''}</span>
+}`;
+  document.getElementById('loopOut').innerHTML='<span class="out-dim">// Las iteraciones aparecerán aquí...</span>';
+  document.getElementById('loopBtn').disabled=false;
+}
+
+function resetLoop() {
+  if(loopTimer) clearTimeout(loopTimer);
+  setupLoop();
+}
+
+function playLoop() {
+  if(loopTimer) clearTimeout(loopTimer);
+  const cells = document.querySelectorAll('.loop-cell');
+  cells.forEach(c=>c.className='loop-cell');
+  const out = document.getElementById('loopOut');
+  out.textContent='';
+  document.getElementById('loopBtn').disabled=true;
+  let idx=0;
+  function step() {
+    if(idx>0) cells[idx-1].className='loop-cell done';
+    if(idx<cells.length){
+      cells[idx].className='loop-cell current';
+      out.textContent += (out.textContent?'\n':'')+'i = '+cells[idx].textContent;
+      idx++;
+      loopTimer=setTimeout(step,280);
+    } else {
+      out.textContent+='\n// Ciclo completado ✓';
+      document.getElementById('loopBtn').disabled=false;
+    }
+  }
+  step();
+}
+
+// ── CICLOS: WHILE ──
+function buildWhileCode() {
+  const n = document.getElementById('whileV').value;
+  document.getElementById('whileCode').innerHTML =
+    `<span class="ty">int</span> n <span class="op">=</span> <span class="val">${n}</span><span class="op">;</span>
+
+<span class="kw">while</span> (n <span class="op">&gt;</span> <span class="val">0</span>) {
+  <span class="fn">printf</span>(<span class="str">"%d "</span>, n);
+  n<span class="op">--</span><span class="op">;</span>   <span class="cmt">// n se reduce en 1 cada vez</span>
+}
+<span class="fn">printf</span>(<span class="str">"¡Listo!"</span>);`;
+}
+setTimeout(buildWhileCode, 200);
+
+function runWhile() {
+  const n = +document.getElementById('whileV').value;
+  buildWhileCode();
+  const out = document.getElementById('whileOut');
+  let res='';
+  for(let i=n;i>0;i--) res+=i+' ';
+  res = res.trim()+'\n¡Listo!  (n llegó a 0 → condición falsa → ciclo termina)';
+  out.textContent='';
+  let i=0;
+  function type(){
+    if(i<=res.length){ out.textContent=res.slice(0,i); i++; setTimeout(type,18); }
+  }
+  type();
+}
+
+// ── QUIZ ──
+function quiz(id, el, correct) {
+  document.querySelectorAll(`[onclick^="quiz('${id}"]`).forEach(b=>{
+    b.className='quiz-opt'; b.disabled=true;
+  });
+  el.classList.add(correct?'correct':'wrong');
+  const fb = document.getElementById(id+'fb');
+  fb.style.color = correct?'var(--c3)':'var(--c1)';
+  fb.textContent = correct ? '✓ ¡Correcto! Bien hecho.' : '✗ No es correcto. Intenta de nuevo.';
+  if (!correct) {
+    setTimeout(()=>{
+      document.querySelectorAll(`[onclick^="quiz('${id}"]`).forEach(b=>{b.className='quiz-opt';b.disabled=false;});
+      fb.textContent='';
+    }, 1800);
+  }
+}
+
+// Init
+setupLoop();
+</script>
+</body>
+</html>
